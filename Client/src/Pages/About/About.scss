@@ -1,0 +1,26 @@
+.about-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+  
+    h1, h2 {
+      color: #2c3e50;
+    }
+  
+    p {
+      font-size: 1.1rem;
+      color: #555;
+    }
+  
+    ul {
+      list-style: none;
+      padding: 0;
+      
+      li {
+        font-size: 1rem;
+        margin: 10px 0;
+      }
+    }
+  }
+  
