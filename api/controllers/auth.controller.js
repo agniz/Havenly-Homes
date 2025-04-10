@@ -32,14 +32,12 @@ export const register = async (req,res)=>{
 export const login = async(req,res)=>{
    const {username,password} = req.body;
    try{
-
-
    // CHECK IF THE USER EXISTS
-
    const user = await prisma.user.findUnique({
     where:{username}
-   })
 
+   })
+console.log(user)
    if(!user) return res.status(401).json({ message:"User not found!" })
    // CHECK IF THE PASSOWRD IS CORRECT
 

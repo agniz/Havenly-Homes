@@ -19,6 +19,7 @@
       border-radius: 10px;
     }
   }
+
   .textContainer {
     flex: 3;
     display: flex;
@@ -58,6 +59,26 @@
       border-radius: 5px;
       background-color: rgba(254, 205, 81, 0.438);
       width: max-content;
+    }
+
+    // Sale or Rent Tag Styling
+    .statusTag {
+      font-weight: bold;
+      padding: 5px 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      text-transform: uppercase;
+      font-size: 14px;
+      
+      &.sale {
+        background-color: #f44336; // Red for Sale
+        color: white;
+      }
+
+      &.rent {
+        background-color: #4caf50; // Green for Rent
+        color: white;
+      }
     }
 
     .bottom {

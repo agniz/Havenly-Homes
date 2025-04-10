@@ -8,15 +8,23 @@ nav {
 
   a {
     transition: all 0.4s ease;
+    border: 1px solid white;
+    background-color: whitesmoke;
+    border-radius: 10px;
+
 
     @include sm {
       display: none;
     }
 
+    
     &:hover {
       scale: 1.05;
+      transform: scale(1.1);
+      background-color: #fece51;
     }
   }
+  
 
   .left {
     flex: 3;

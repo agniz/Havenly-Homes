@@ -12,7 +12,6 @@ function Chat({ chats }) {
   const { socket } = useContext(SocketContext);
 
   const messageEndRef = useRef();
-
   const decrease = useNotificationStore((state) => state.decrease);
 
   useEffect(() => {

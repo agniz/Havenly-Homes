@@ -11,7 +11,7 @@ function Filter() {
     property: searchParams.get("property") || "",
     minPrice: searchParams.get("minPrice") || 0,
     maxPrice: searchParams.get("maxPrice") || 10000000,
-    bedroom: searchParams.get("bedroom") || 1,
+    bedroom: searchParams.get("bedroom") || 0,
   })
 
 
@@ -61,7 +61,6 @@ function Filter() {
             <option value="">any</option>
             <option value="apartment">Apartment</option>
             <option value="house">House</option>
-            <option value="land">Land</option>
           </select>
         </div>
         <div className="item">

@@ -15,7 +15,7 @@ function ProfilePage() {
 
   const handleLogout = async () => {
     try {
-      await apiRequest.post("/auth/logout");
+      await apiRequest.put("/auth/logout");
       updateUser(null);
       navigate("/");
     } catch (err) {

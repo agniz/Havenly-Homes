@@ -81,6 +81,7 @@ export const savePost = async (req, res) => {
   const tokenUserId = req.userId;
 
   try {
+    
     const savedPost = await prisma.savedPost.findUnique({
       where: {
         userId_postId: {

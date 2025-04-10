@@ -2,85 +2,95 @@
 
 .homePage {
   display: flex;
-  height: 100%;
-
-  .textContainer {
-    flex: 3;
-
-    .wrapper {
-      padding-right: 100px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 50px;
-      height: 100%;
-
-      @include md{
-        padding: 0;
-      }
-
-      @include sm{
-        justify-content: flex-start;
-      }
-
-
-
-      .title {
-        font-size: 64px;
-
-        @include lg{
-          font-size: 48px;
-        }
-
-        
-      }
-
-      .boxes {
-        display: flex;
-        justify-content: space-between;
-
-        @include sm{
-          display: none;
-        }
-
-       
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eaf4fc, #ffffff);
+  padding: 2rem;
+  
+  .contentWrapper {
+    display: flex;
+    max-width: 1200px;
+    width: 100%;
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-5px);
+    }
+    
+    .textContainer {
+      flex: 1;
+      padding: 3rem;
       
-        h1 {
-          font-size: 36px;
-
-          @include lg{
-            font-size: 32px;
+      .title {
+        font-size: 3rem;
+        background: linear-gradient(45deg, #3494e6, #2948ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1.5rem;
+      }
+      
+      .description {
+        font-size: 1.2rem;
+        color: #555;
+        margin-bottom: 2rem;
+      }
+      
+      .searchBarWrapper {
+        margin-bottom: 2rem;
+      }
+      
+      .statsWrapper {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        
+        .statCard {
+          flex: 1;
+          text-align: center;
+          background: #f8f8f8;
+          padding: 1rem;
+          border-radius: 10px;
+          transition: transform 0.3s ease;
+          
+          &:hover {
+            transform: translateY(-5px);
+          }
+          
+          h1 {
+            font-size: 2rem;
+            color: #2948ff;
+          }
+          
+          h2 {
+            font-size: 0.9rem;
+            color: #777;
+            margin-top: 0.5rem;
           }
         }
-
-        h2 {
-          font-size: 20px;
-          font-weight: 300;
-        }
       }
     }
-  }
-
-  .imgContainer {
-    flex: 2;
-    background-color: #fcf5f3;
-    position: relative;
-    display: flex;
-    align-items: center;
-
-    @include md{
-      display: none;
-    }
-
-   
-
-    img {
-      width: 115%;
-      position: absolute;
-      right: 0;
-
-      @include lg{
-        width: 105%;
+    
+    .imgContainer {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      
+      img {
+        width: 100%;
+        display: block;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1),
+                    0 10px 20px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+        
+        &:hover {
+          transform: scale(1.05);
+        }
       }
     }
   }

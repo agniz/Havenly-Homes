@@ -4,48 +4,56 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import apiRequest from "../../lib/apiRequest";
 import UploadWidget from "../../components/uploadWidget/UploadWidget";
-import { data, useNavigate } from "react-router-dom";
-import { Cloudinary } from '@cloudinary/url-gen'
-import { image } from "@cloudinary/url-gen/qualifiers/source";
+import { useNavigate } from "react-router-dom";
+import { MapContainer, Marker, TileLayer } from "react-leaflet";
+import L from 'leaflet';
+import { useMapEvents } from 'react-leaflet/hooks';
+import "leaflet/dist/leaflet.css";
+import icon from '../../../public/pin.png';
+import { toast } from 'react-toastify';
+
 function NewPostPage() {
   const [value, setValue] = useState("");
   const [images, setImages] = useState([]);
   const [error, setError] = useState("");
-  const [publicId, setPublicId] = useState('');
-  const navigate = useNavigate()
-  const cloudName = 'dkto2of8f';
-  const uploadPreset = 'havenly homes estate';
-  const cld = new Cloudinary({
-    cloud: {
-      cloudName,
-    },
+  const markerIcon = L.icon({
+    iconUrl: icon,
+    iconSize: [35, 35]
   });
-  const uwConfig = {
-    cloudName,
-    uploadPreset,
-    multiple:true,
-    folder: "posts",
-  }
 
-  const handleSubmit =async (e) => {
+  const navigate = useNavigate();
+  const [marker, setMarker] = useState([28.210631681874286, 83.98412824540198]);
+
+  const MapEventsHandler = ({ handleMapClick }) => {
+    useMapEvents({
+      click: (e) => handleMapClick(e),
+    });
+    return null;
+  };
+
+  const handleMapClick = (e) => {
+    const { lat, lng } = e.latlng;
+    setMarker([lat, lng]);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("das")
     const formData = new FormData(e.target);
     const inputs = Object.fromEntries(formData);
 
     try {
       const res = await apiRequest.post("/posts", {
         postData: {
-          title:inputs.title,
-          price:parseInt(inputs.price),
-          address:inputs.address,
-          city:inputs.city,
-          bedroom:parseInt(inputs.bedroom),
-          bathroom:parseInt(inputs.bedroom),
-          type:inputs.type,
-          property:inputs.property,
-          latitude:inputs.latitude,
-          longitude:inputs.longitude,
+          title: inputs.title,
+          price: parseInt(inputs.price),
+          address: inputs.address,
+          city: inputs.city,
+          bedroom: parseInt(inputs.bedroom),
+          bathroom: parseInt(inputs.bathroom),
+          type: inputs.type, // rent or buy
+          property: inputs.property,
+          latitude: marker[0].toString(),
+          longitude: marker[1].toString(),
           images: images,
         },
         postDetail: {
@@ -54,130 +62,182 @@ function NewPostPage() {
           pet: inputs.pet,
           income: inputs.income,
           size: parseInt(inputs.size),
-          school: parseInt(inputs.school),
-          bus: parseInt(inputs.bus),
-          restaurant: parseInt(inputs.resturant),
+          school: inputs.school === 'on',
+          bus: inputs.bus === 'on',
+          restaurant: inputs.restaurant === 'on',
         },
       });
-      navigate("/"+res.data.id)
+
+      toast.success("Property listing created successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      setTimeout(() => {
+        navigate("/" + res.data.id);
+      }, 1500);
+
     } catch (err) {
-        console.log(err);
-        setError(error);
+      console.log(err);
+      setError(err.response?.data?.message || "Something went wrong");
+      toast.error("Failed to create listing. Please try again.", {
+        position: "top-right",
+        autoClose: 4000,
+      });
     }
   };
 
   return (
     <div className="newPostPage">
       <div className="formContainer">
-        <h1>Add New Post</h1>
+        <h1>Add New Property Listing</h1>
         <div className="wrapper">
           <form onSubmit={handleSubmit}>
-            <div className="item">
-              <label htmlFor="title">Title</label>
-              <input id="title" name="title" type="text" />
+            {/* Basic Information Section */}
+            <div className="formSection">
+              <h2>Basic Information</h2>
+              <div className="formGroup">
+                <div className="item">
+                  <label htmlFor="title">Title</label>
+                  <input id="title" name="title" type="text" placeholder="Property Title" required />
+                </div>
+                <div className="item">
+                  <label htmlFor="price">Price ($)</label>
+                  <input id="price" name="price" type="number" placeholder="Price" required />
+                </div>
+                <div className="item">
+                  <label htmlFor="address">Address</label>
+                  <input id="address" name="address" type="text" placeholder="Full Address" required />
+                </div>
+              </div>
             </div>
-            <div className="item">
-              <label htmlFor="price">Price</label>
-              <input id="price" name="price" type="number" />
+            
+            {/* Property Details Section */}
+            <div className="formSection">
+              <h2>Property Details</h2>
+              <div className="formGroup">
+                <div className="item">
+                  <label htmlFor="city">City</label>
+                  <input id="city" name="city" type="text" placeholder="City" required />
+                </div>
+                <div className="item">
+                  <label htmlFor="bedroom">Bedrooms</label>
+                  <input min={1} id="bedroom" name="bedroom" type="number" placeholder="Number of Bedrooms" required />
+                </div>
+                <div className="item">
+                  <label htmlFor="bathroom">Bathrooms</label>
+                  <input min={1} id="bathroom" name="bathroom" type="number" placeholder="Number of Bathrooms" required />
+                </div>
+              </div>
+              
+              <div className="formGroup">
+                <div className="item">
+                  <label htmlFor="type">Listing Type</label>
+                  <select name="type" required>
+                    <option value="rent" defaultChecked>For Rent</option>
+                    <option value="buy">For Sale</option>
+                  </select>
+                </div>
+                <div className="item">
+                  <label htmlFor="property">Property Type</label>
+                  <select name="property" required>
+                    <option value="apartment">Apartment</option>
+                    <option value="house">House</option>
+                  </select>
+                </div>
+                <div className="item">
+                  <label htmlFor="size">Total Size (sqft)</label>
+                  <input min={0} id="size" name="size" type="number" placeholder="Square Footage" required />
+                </div>
+              </div>
             </div>
-            <div className="item">
-              <label htmlFor="address">Address</label>
-              <input id="address" name="address" type="text" />
-            </div>
+            
+            {/* Description Section */}
             <div className="item description">
               <label htmlFor="desc">Description</label>
-            <ReactQuill theme="snow" onChange={setValue} value={value}/>
+              <ReactQuill theme="snow" onChange={setValue} value={value} />
             </div>
-            <div className="item">
-              <label htmlFor="city">City</label>
-              <input id="city" name="city" type="text" />
+            
+            {/* Policies & Amenities Section */}
+            <div className="formSection">
+              <h2>Policies & Amenities</h2>
+              <div className="formGroup">
+                <div className="item">
+                  <label htmlFor="utilities">Utilities Policy</label>
+                  <select name="utilities">
+                    <option value="owner">Owner is responsible</option>
+                    <option value="tenant">Tenant is responsible</option>
+                    <option value="shared">Shared</option>
+                  </select>
+                </div>
+                <div className="item">
+                  <label htmlFor="pet">Pet Policy</label>
+                  <select name="pet">
+                    <option value="allowed">Allowed</option>
+                    <option value="not-allowed">Not Allowed</option>
+                  </select>
+                </div>
+                <div className="item">
+                  <label htmlFor="income">Income Requirement</label>
+                  <input id="income" name="income" type="text" placeholder="e.g., '3x monthly rent'" />
+                </div>
+              </div>
             </div>
-            <div className="item">
-              <label htmlFor="bedroom">Bedroom Number</label>
-              <input min={1} id="bedroom" name="bedroom" type="number" />
+            
+            {/* Map Section */}
+            <div className="formSection mapSection">
+              <h2>Property Location</h2>
+              <p>Pin Your Property Location (Click on map to set marker)</p>
+              <div className="mapContainer">
+                <MapContainer 
+                  center={marker}
+                  zoom={13}
+                  style={{ height: '400px', width: '100%' }}
+                  whenCreated={(map) => {
+                    map.invalidateSize();
+                  }}
+                >
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  <Marker icon={markerIcon} position={marker}></Marker>
+                  <MapEventsHandler handleMapClick={handleMapClick} />
+                </MapContainer>
+              </div>
             </div>
-            <div className="item">
-              <label htmlFor="bathroom">Bathroom Number</label>
-              <input min={1} id="bathroom" name="bathroom" type="number" />
-            </div>
-            <div className="item">
-              <label htmlFor="latitude">Latitude</label>
-              <input id="latitude" name="latitude" type="text" />
-            </div>
-            <div className="item">
-              <label htmlFor="longitude">Longitude</label>
-              <input id="longitude" name="longitude" type="text" />
-            </div>
-            <div className="item">
-              <label htmlFor="type">Type</label>
-              <select name="type">
-                <option value="rent" defaultChecked>
-                  Rent
-                </option>
-                <option value="buy">Buy</option>
-              </select>
-            </div>
-            <div className="item">
-              <label htmlFor="type">Property</label>
-              <select name="property">
-                <option value="apartment">Apartment</option>
-                <option value="house">House</option>
-                <option value="land">Land</option>
-              </select>
-            </div>
-            <div className="item">
-              <label htmlFor="utilities">Utilities Policy</label>
-              <select name="utilities">
-                <option value="owner">Owner is responsible</option>
-                <option value="tenant">Tenant is responsible</option>
-                <option value="shared">Shared</option>
-              </select>
-            </div>
-            <div className="item">
-              <label htmlFor="pet">Pet Policy</label>
-              <select name="pet">
-                <option value="allowed">Allowed</option>
-                <option value="not-allowed">Not Allowed</option>
-              </select>
-            </div>
-            <div className="item">
-              <label htmlFor="income">Income Policy</label>
-              <input
-                id="income"
-                name="income"
-                type="text"
-                placeholder="Income Policy"
-              />
-            </div>
-            <div className="item">
-              <label htmlFor="size">Total Size (sqft)</label>
-              <input min={0} id="size" name="size" type="number" />
-            </div>
-            <div className="item">
-              <label htmlFor="school">School</label>
-              <input min={0} id="school" name="school" type="number" />
-            </div>
-            <div className="item">
-              <label htmlFor="bus">bus</label>
-              <input min={0} id="bus" name="bus" type="number" />
-            </div>
-            <div className="item">
-              <label htmlFor="restaurant">Restaurant</label>
-              <input min={0} id="restaurant" name="restaurant" type="number" />
-            </div>
-            <button className="sendButton">Add</button>
-            {error &&<span>error</span>}
+
+            {/* Submit Button */}
+            <button className="sendButton" type="submit">Create Property Listing</button>
+            {error && <div className="errorMessage">{error}</div>}
           </form>
         </div>
       </div>
+
+      {/* Image Upload Section */}
       <div className="sideContainer">
-      {images.map((image, index) => (
-        <img src={image} key={index} alt="" />
-))}
-      <UploadWidget uwConfig={uwConfig} setPublicId={setPublicId}
-        setState={setImages}
+        <h2>Property Images</h2>
+        <p>Upload up to 4 images of your property</p>
+        <div className="imageGallery">
+          {images.length > 0 ? (
+            images.map((image, index) => (
+              <img src={image} key={index} alt={`Property image ${index + 1}`} />
+            ))
+          ) : (
+            <div className="noImages">No images uploaded yet</div>
+          )}
+        </div>
+        <UploadWidget
+          uwConfig={{
+            multiple: true,
+            cloudName: "dkto2of8f",
+            uploadPreset: "havenly homes estate",
+            folder: "posts",
+            maxFiles: 4,
+          }}
+          setState={setImages}
         />
-</div>
+        <div className="imageCounter">
+          {images.length} of 4 images uploaded
+        </div>
+      </div>
     </div>
   );
 }

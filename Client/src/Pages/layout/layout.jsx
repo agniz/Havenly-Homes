@@ -1,8 +1,10 @@
 import './layout.scss';
 import Navbar from "../../components/navbar/Navbar"
+
 import { AuthContext } from '../../context/AuthContext';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useContext, useEffect } from 'react';
+import Footer from '../../components/Footer/Footer';
 
 
 function Layout(){
@@ -11,8 +13,9 @@ function Layout(){
     <div className="navbar">
       <Navbar/>
       </div>
-    <div className="content">
+    <div className="content" >
       <Outlet/>
+    <Footer/>
     </div>
     </div>
   )

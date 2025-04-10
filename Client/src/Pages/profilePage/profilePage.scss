@@ -3,8 +3,9 @@
 .profilePage {
   display: flex;
   height: 100%;
+  background: #f8f9fa; // Light background for the entire page
 
-  @include md{
+  @include md {
     flex-direction: column;
     overflow: scroll;
   }
@@ -12,79 +13,120 @@
   .details {
     flex: 3;
     overflow-y: scroll;
-    padding-bottom: 50px;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); // Subtle shadow for depth
 
-    @include md{
-      flex:none;
+    @include md {
+      flex: none;
       height: max-content;
     }
 
-    .wrapper{
-      padding-right: 50px;
+    .wrapper {
+      padding-right: 2rem;
       display: flex;
       flex-direction: column;
-      gap: 50px;
+      gap: 2rem;
 
-      .title{
+      .title {
         display: flex;
         align-items: center;
         justify-content: space-between;
 
-        h1{
-          font-weight: 300;
+        h1 {
+          font-weight: 600; // Bold title
+          font-size: 2rem;
+          color: #2c3e50; // Dark blue for headings
         }
 
-        button{
+        button {
           padding: 12px 24px;
-          background-color: #fece51;
+          background-color: #4caf50; // Green for primary actions
+          color: white;
           cursor: pointer;
           border: none;
+          border-radius: 8px;
+          font-size: 1rem;
+          transition: background-color 0.3s ease;
+
+          &:hover {
+            background-color: #45a049; // Darker green on hover
+          }
         }
       }
 
-      .info{
+      .info {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        background: #f8f9fa; // Light background for info section
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); // Subtle shadow
 
-        span{
+        span {
           display: flex;
           align-items: center;
-          gap: 20px;
+          gap: 1rem;
+          font-size: 1.1rem;
+          color: #4a5568; // Gray for text
+
+          img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e2e8f0; // Border for the avatar
+          }
+
+          b {
+            color: #2c3e50; // Dark blue for emphasis
+            font-weight: 600;
+          }
         }
 
-        button{
-          width: 100px;
-          background-color: teal;
+        button {
+          width: 120px;
+          padding: 0.75rem 1rem;
+          background-color: #ff6f61; // Coral for logout button
           border: none;
           color: white;
           cursor: pointer;
-          border-radius: 5px;
+          border-radius: 8px;
+          font-size: 1rem;
+          transition: background-color 0.3s ease;
 
-        }
-
-        img{
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          object-fit: cover;
+          &:hover {
+            background-color: #ff3b2f; // Darker coral on hover
+          }
         }
       }
     }
   }
+
   .chatContainer {
     flex: 2;
-    background-color: #fcf5f3;
-    height: 100%;
+    background-color: #ffffff; // White background for chat container
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); // Subtle shadow
 
-    @include md{
-      flex:none;
+    @include md {
+      flex: none;
       height: max-content;
     }
 
-    .wrapper{
-      padding: 0px 20px;
+    .wrapper {
+      padding: 0 1rem;
       height: 100%;
+
+      h1 {
+        font-size: 1.5rem;
+        color: #2c3e50; // Dark blue for headings
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+      }
     }
   }
 }

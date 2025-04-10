@@ -26,9 +26,16 @@ function ListPage() {
         </Suspense>
       </div>
     </div>
-    {/* <div className="mapContainer">
-      <Map items={posts}/>
-    </div> */}
+    <div className="mapContainer">
+        <Suspense fallback={<p>Loading...</p>}>
+          <Await
+            resolve={data.postResponse}
+            errorElement={<p>Error loading posts!</p>}
+          >
+            {(postResponse) => <Map items={postResponse.data} zoom={9} />}
+          </Await>
+        </Suspense>
+      </div>
   </div>;
 }
 
