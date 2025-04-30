@@ -8,6 +8,34 @@ import { AuthContext } from "../../context/AuthContext";
 import { SocketContext } from "../../context/SocketContext";
 import apiRequest from "../../lib/apiRequest";
 import { format } from "timeago.js";
+import { 
+  FaMapMarkerAlt, 
+  FaUser, 
+  FaTimes, 
+  FaPaperPlane, 
+  FaStar, 
+  FaDollarSign,
+  FaRegBookmark,
+  FaBookmark,
+  FaCommentDots,
+  FaWrench,
+  FaPaw,
+  FaMoneyBillWave,
+  FaRulerCombined,
+  FaBed,
+  FaBath,
+  FaSchool,
+  FaBusAlt,
+  FaUtensils,
+  FaWifi,
+  FaDog,
+  FaBriefcase,
+  FaShoppingCart,
+  FaHospital,
+  FaMapMarked,
+  FaComment,
+  FaHeart
+} from "react-icons/fa";
 
 function SinglePage() {
   const post = useLoaderData();
@@ -22,11 +50,21 @@ function SinglePage() {
   const [chat, setChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const messageEndRef = useRef();
+  const inputRef = useRef();
 
   // Scroll to bottom when messages change
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Focus input field when popup opens
+  useEffect(() => {
+    if (showMessagePopup) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [showMessagePopup]);
 
   // Check for existing chat or create new one
   const initializeChat = async () => {
@@ -157,6 +195,10 @@ function SinglePage() {
     }
   };
 
+  const getAvatarUrl = (user) => {
+    return user?.avatar || null;
+  };
+
   return (
     <div className="singlePage">
       <div className="details">
@@ -167,13 +209,26 @@ function SinglePage() {
               <div className="post">
                 <h1>{post.title}</h1>
                 <div className="address">
-                  <img src="/pin.png" alt="" />
+                  <div className="iconWrapper">
+                    <FaMapMarkerAlt />
+                  </div>
                   <span>{post.address}</span>
                 </div>
-                <div className="price">$ {post.price}</div>
+                <div className="price">
+                  <div className="iconWrapper">
+                    <FaDollarSign />
+                  </div>
+                  <span>{post.price}</span>
+                </div>
               </div>
               <div className="user">
-                <img src={post.user.avatar} alt="" />
+                {getAvatarUrl(post.user) ? (
+                  <img src={getAvatarUrl(post.user)} alt={post.user.username} />
+                ) : (
+                  <div className="noAvatar">
+                    <FaUser />
+                  </div>
+                )}
                 <span>{post.user.username}</span>
               </div>
             </div>
@@ -191,7 +246,9 @@ function SinglePage() {
           <p className="title">General</p>
           <div className="listVertical">
             <div className="feature">
-              <img src="/utility.png" alt="" />
+              <div className="iconWrapper">
+                <FaWrench />
+              </div>
               <div className="featureText">
                 <span>Utilities</span>
                 {post.postDetail.utilities === "owner" ? (
@@ -202,7 +259,9 @@ function SinglePage() {
               </div>
             </div>
             <div className="feature">
-              <img src="/pet.png" alt="" />
+              <div className="iconWrapper">
+                <FaPaw />
+              </div>
               <div className="featureText">
                 <span>Pet Policy</span>
                 {post.postDetail.pet === "allowed" ? (
@@ -213,7 +272,9 @@ function SinglePage() {
               </div>
             </div>
             <div className="feature">
-              <img src="/fee.png" alt="" />
+              <div className="iconWrapper">
+                <FaMoneyBillWave />
+              </div>
               <div className="featureText">
                 <span>Income Policy</span>
                 <p>{post.postDetail.income}</p>
@@ -223,47 +284,56 @@ function SinglePage() {
           <p className="title">Sizes</p>
           <div className="sizes">
             <div className="size">
-              <img src="/size.png" alt="" />
+              <div className="iconWrapper">
+                <FaRulerCombined />
+              </div>
               <span>{post.postDetail.size} sqft</span>
             </div>
             <div className="size">
-              <img src="/bed.png" alt="" />
+              <div className="iconWrapper">
+                <FaBed />
+              </div>
               <span>{post.bedroom} beds</span>
             </div>
             <div className="size">
-              <img src="/bath.png" alt="" />
+              <div className="iconWrapper">
+                <FaBath />
+              </div>
               <span>{post.bathroom} bathroom</span>
             </div>
           </div>
           <p className="title">Nearby Places</p>
           <div className="listHorizontal">
             <div className="feature">
-              <img src="/school.png" alt="" />
+              <div className="iconWrapper">
+                <FaSchool />
+              </div>
               <div className="featureText">
                 <span>School</span>
                 <p>
                   {post.postDetail.school ? "Yes":"No"}
-                 
                 </p>
               </div>
             </div>
             <div className="feature">
-              <img src="/pet.png" alt="" />
+              <div className="iconWrapper">
+                <FaBusAlt />
+              </div>
               <div className="featureText">
                 <span>Bus Stop</span>
                 <p>
                   {post.postDetail.bus ? "Yes":"No"}
-                 
                 </p>
               </div>
             </div>
             <div className="feature">
-              <img src="/fee.png" alt="" />
+              <div className="iconWrapper">
+                <FaUtensils />
+              </div>
               <div className="featureText">
                 <span>Restaurant</span>
                 <p>
                   {post.postDetail.restaurant ? "Yes":"No"}
-                 
                 </p>
               </div>
             </div>
@@ -273,215 +343,66 @@ function SinglePage() {
             <Map items={[post]} />
           </div>
           <div className="buttons">
-           {currentUser.id !== post.userId && <button onClick={initializeChat}>
-              <img src="/chat.png" alt="" />
-              Send a Message
+           {currentUser?.id !== post.userId && <button onClick={initializeChat} className="messageBtn">
+              <FaCommentDots />
+              <span>Send a Message</span>
             </button>}
             <button
               onClick={handleSave}
-              style={{
-                backgroundColor: saved ? "#fece51" : "white",
-              }}
+              className={saved ? "savedBtn" : "saveBtn"}
             >
-              <img src="/save.png" alt="" />
-              {saved ? "Place Saved" : "Save the Place"}
+              {saved ? <FaBookmark /> : <FaRegBookmark />}
+              <span>{saved ? "Place Saved" : "Save the Place"}</span>
             </button>
           </div>
         </div>
       </div>
-      <>
-        {/* Message Popup */}
-        {showMessagePopup && chat && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          zIndex: 1000,
-        }}>
-          <div style={{
-            backgroundColor: "#fff",
-            borderRadius: "8px",
-            boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
-            width: "90%",
-            maxWidth: "500px",
-            maxHeight: "90vh",
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-          }}>
-            {/* Header */}
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "12px 16px",
-              borderBottom: "1px solid #eaeaea",
-              backgroundColor: "#f8f8f8",
-            }}>
-              <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-              }}>
-                <img 
-                  src={chat.receiver.avatar || "/noavatar.jpg"} 
-                  alt="" 
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                  }}
-                />
-                <div>
-                  <h3 style={{
-                    margin: 0,
-                    fontSize: "16px",
-                    fontWeight: "600",
-                  }}>{chat.receiver.username}</h3>
-                  <p style={{
-                    margin: "2px 0 0 0",
-                    fontSize: "12px",
-                    color: "#65676B",
-                  }}>About: {post.title}</p>
-                </div>
+
+      {/* Message popup */}
+      {showMessagePopup && (
+        <div className="messagePopup">
+          <div className="header">
+            <h3>
+              <span className="username">{chat?.receiver?.username}</span>
+              <span className="aboutProperty">About: {post.title}</span>
+            </h3>
+            <button className="closeBtn" onClick={() => setShowMessagePopup(false)}>
+              <FaTimes />
+            </button>
+          </div>
+          <div className="messages">
+            {messages.length === 0 && (
+              <div className="welcomeMessage">
+                <FaStar className="icon" />
+                <p>Start your conversation about "{post.title}"</p>
               </div>
-              <button 
-                onClick={() => setShowMessagePopup(false)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: "18px",
-                  color: "#606770",
-                }}
+            )}
+            {messages.map((msg, index) => (
+              <div 
+                key={index} 
+                className={`message ${msg.userId === currentUser?.id ? 'own' : 'other'}`}
               >
-                ✕
-              </button>
-            </div>
-            
-            {/* Message area */}
-            <div style={{
-              padding: "16px",
-              height: "250px",
-              overflowY: "auto",
-              backgroundColor: "#f0f2f5",
-              display: "flex",
-              flexDirection: "column",
-            }}>
-              {messages.length === 0 && (
-                <div style={{
-                  margin: "0 auto",
-                  padding: "8px 12px",
-                  backgroundColor: "#E4E6EB",
-                  borderRadius: "18px",
-                  fontSize: "13px",
-                  color: "#65676B",
-                  textAlign: "center",
-                  maxWidth: "80%",
-                }}>
-                  This is the beginning of your conversation about "{post.title}"
-                </div>
-              )}
-              
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  style={{
-                    alignSelf: msg.userId === currentUser.id ? "flex-end" : "flex-start",
-                    textAlign: msg.userId === currentUser.id ? "right" : "left",
-                    margin: "4px 0",
-                  }}
-                >
-                  <div style={{
-                    backgroundColor: msg.userId === currentUser.id ? "#0084ff" : "#e4e6eb",
-                    color: msg.userId === currentUser.id ? "white" : "black",
-                    borderRadius: "18px",
-                    padding: "8px 12px",
-                    maxWidth: "70%",
-                    wordBreak: "break-word",
-                    display: "inline-block",
-                  }}>
-                    {msg.text}
-                  </div>
-                  <div style={{
-                    fontSize: "11px",
-                    color: "#65676B",
-                    marginTop: "2px",
-                  }}>
-                    {format(msg.createdAt)}
-                  </div>
-                </div>
-              ))}
-              <div ref={messageEndRef}></div>
-            </div>
-            
-            {/* Input area */}
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "10px 16px",
-              borderTop: "1px solid #eaeaea",
-              backgroundColor: "#fff",
-            }}>
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder={`Message about ${post.title}...`}
-                style={{
-                  flex: 1,
-                  border: "none",
-                  borderRadius: "20px",
-                  padding: "10px 14px",
-                  resize: "none",
-                  height: "40px",
-                  backgroundColor: "#f0f2f5",
-                  fontSize: "14px",
-                  fontFamily: "inherit",
-                  outline: "none",
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }
-                }}
-              />
-              <button
-                onClick={handleSendMessage}
-                style={{
-                  marginLeft: "10px",
-                  backgroundColor: "#0084ff",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "50%",
-                  width: "36px",
-                  height: "36px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  transition: "background-color 0.2s",
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M22 2L11 13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            </div>
+                <div className="messageContent">{msg.text}</div>
+                <div className="messageTime">{format(msg.createdAt)}</div>
+              </div>
+            ))}
+            <div ref={messageEndRef} />
+          </div>
+          <div className="inputArea">
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="Type your message..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            />
+            <button onClick={handleSendMessage}>
+              <FaPaperPlane />
+            </button>
           </div>
         </div>
       )}
-      </>
-      
-    
     </div>
   );
 }

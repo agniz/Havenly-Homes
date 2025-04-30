@@ -1,41 +1,58 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import SearchBar from "../../components/navbar/searchBar/SearchBar";
+import "../homepage/homepage.scss";
 import { AuthContext } from "../../context/AuthContext";
-import "./homepage.scss";
+import Footer from "../../components/Footer/Footer";
 
 function HomePage() {
   const { currentUser } = useContext(AuthContext);
 
   return (
     <div className="homePage">
-      <div className="contentWrapper">
-        <div className="textContainer">
-          <h1 className="title">Discover Your Dream Home</h1>
-          <p className="description">
-            With over 16 years of experience, our collection of more than 2,000 properties offers a perfect match for every lifestyle—from luxury estates to cozy rentals.
-          </p>
-          <div className="searchBarWrapper">
-            <SearchBar />
-          </div>
-          <div className="statsWrapper">
-            <div className="statCard">
-              <h1>16+</h1>
-              <h2>Years of Experience</h2>
-            </div>
-            <div className="statCard">
-              <h1>200</h1>
-              <h2>Awards Gained</h2>
-            </div>
-            <div className="statCard">
-              <h1>2000+</h1>
-              <h2>Properties Ready</h2>
+      <div className="heroSection">
+        <div className="contentWrapper">
+          <div className="textContainer">
+           
+            <h1 className="title">
+              Find Your <span className="highlight">Perfect</span> Home
+            </h1>
+            <p className="description">
+              Discover your dream property with Havenly Homes. From luxury apartments to cozy rentals, 
+              we help you find not just a house, but a place to call home.
+            </p>
+            <div className="searchBarWrapper">
+              <SearchBar />
             </div>
           </div>
-        </div>
-        <div className="imgContainer">
-          <img src="/bg.png" alt="Elegant Home" />
+          <div className="imgContainer">
+            <div className="decorCircle"></div>
+            <img src="/bg.png" alt="Modern Home" className="heroImage" />
+          </div>
         </div>
       </div>
+
+      <div className="featuresSection">
+        <h2 className="sectionTitle">Why Choose Havenly Homes?</h2>
+        <div className="featuresGrid">
+          <div className="featureCard">
+            <div className="icon">🏠</div>
+            <h3>Extensive Listings</h3>
+            <p>Browse through thousands of verified properties across the city</p>
+          </div>
+          <div className="featureCard">
+            <div className="icon">🔑</div>
+            <h3>Easy Process</h3>
+            <p>Simple and transparent property buying/renting process</p>
+          </div>
+          <div className="featureCard">
+            <div className="icon">💎</div>
+            <h3>Premium Properties</h3>
+            <p>Access to exclusive luxury and premium listings</p>
+          </div>
+        </div>
+      </div>
+      
+      <Footer/>
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";  
-import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import authRoute from "./routes/auth.route.js";
 import postRoute from "./routes/post.route.js";
@@ -10,7 +9,8 @@ import userRoute from "./routes/user.route.js";
 import chatRoute from "./routes/chat.route.js";
 import messageRoute from "./routes/message.route.js";
 import adminRoutes from "./routes/admin.route.js";
-
+import stripeRoutes from "./routes/stripe.route.js";
+import webhookRoute from "./routes/webhook.route.js";
 
 // Load environment variables
 dotenv.config();  
@@ -23,6 +23,9 @@ app.use(
     credentials: true, 
   })
 );
+app.use('/api/webhook', webhookRoute);
+
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -34,9 +37,6 @@ app.use("/api/test", testRoute);
 app.use("/api/chats", chatRoute);
 app.use("/api/messages", messageRoute);
 app.use("/api/admin", adminRoutes);
-
-
-
-
+app.use('/api/stripe',stripeRoutes)
 
 app.listen(3000, () => console.log("Server running on port 3000"));

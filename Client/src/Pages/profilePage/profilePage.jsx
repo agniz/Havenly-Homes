@@ -3,15 +3,17 @@ import List from "../../components/list/List";
 import "./profilePage.scss";
 import apiRequest from "../../lib/apiRequest";
 import { Await, Link, useLoaderData, useNavigate } from "react-router-dom";
-import { Suspense, useContext } from "react";
+import { Suspense, useContext, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import { FaUserEdit, FaSignOutAlt, FaPlus, FaBookmark, FaHome, FaCreditCard } from "react-icons/fa";
+import { useUserSubscriptionLevel } from "../../context/SubscriptionContext";
+import PostButton from "./PostButton";
 
 function ProfilePage() {
   const data = useLoaderData();
-
   const { updateUser, currentUser } = useContext(AuthContext);
-
   const navigate = useNavigate();
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -22,64 +24,86 @@ function ProfilePage() {
       console.log(err);
     }
   };
+  
+
   return (
     <div className="profilePage">
       <div className="details">
         <div className="wrapper">
-          <div className="title">
-            <h1>User Information</h1>
-            <Link to="/profile/update">
-              <button>Update Profile</button>
-            </Link>
+          <div className="profileHeader">
+            <div className="profileInfo">
+              <div 
+                className="avatarContainer"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              >
+                <img src={currentUser.avatar || "noavatar.jpg"} alt="Profile" />
+                <div className={`avatarOverlay ${isHovered ? 'active' : ''}`}>
+                  <Link to="/profile/update">
+                    <FaUserEdit className="editIcon" />
+                  </Link>
+                </div>
+              </div>
+              <div className="userDetails">
+                <h2>{currentUser.username}</h2>
+                <p>{currentUser.email}</p>
+              </div>
+            </div>
+            <div className="profileActions buttons-container">
+              <Link to="/billing" className="billingButton">
+                <FaCreditCard /> Billing
+              </Link>
+              <button className="logoutButton" onClick={handleLogout}>
+                <FaSignOutAlt /> Logout
+              </button>
+            </div>
           </div>
-          <div className="info">
-            <span>
-              Avatar:
-              <img src={currentUser.avatar || "noavatar.jpg"} alt="" />
-            </span>
-            <span>
-              Username: <b>{currentUser.username}</b>
-            </span>
-            <span>
-              E-mail: <b>{currentUser.email}</b>
-            </span>
-            <button onClick={handleLogout}>Logout</button>
+
+          <div className="contentSection">
+            <div className="sectionHeader">
+              <div className="sectionTitle">
+                <FaHome className="sectionIcon" />
+                <h1>My Posts</h1>
+              </div>
+            <PostButton/>
+            </div>
+            <Suspense fallback={<div className="loading">Loading...</div>}>
+              <Await
+                resolve={data.postResponse}
+                errorElement={<div className="error">Error loading posts!</div>}
+              >
+                {(postResponse) => <List posts={postResponse.data.userPosts} />}
+              </Await>
+            </Suspense>
           </div>
-          <div className="title">
-            <h1>My List</h1>
-            <Link to="/add">
-              <button>Create New Post</button>
-            </Link>
+
+          <div className="contentSection">
+            <div className="sectionHeader">
+              <div className="sectionTitle">
+                <FaBookmark className="sectionIcon" />
+                <h1>Saved Posts</h1>
+              </div>
+            </div>
+            <Suspense fallback={<div className="loading">Loading...</div>}>
+              <Await
+                resolve={data.postResponse}
+                errorElement={<div className="error">Error loading posts!</div>}
+              >
+                {(postResponse) => <List posts={postResponse.data.savedPosts} />}
+              </Await>
+            </Suspense>
           </div>
-          <Suspense fallback={<p>Loading...</p>}>
-            <Await
-              resolve={data.postResponse}
-              errorElement={<p>Error loading posts!</p>}
-            >
-              {(postResponse) => <List posts={postResponse.data.userPosts} />}
-            </Await>
-          </Suspense>
-          <div className="title">
-            <h1>Saved List</h1>
-          </div>
-          <Suspense fallback={<p>Loading...</p>}>
-            <Await
-              resolve={data.postResponse}
-              errorElement={<p>Error loading posts!</p>}
-            >
-              {(postResponse) => <List posts={postResponse.data.savedPosts} />}
-            </Await>
-          </Suspense>
         </div>
       </div>
+
       <div className="chatContainer">
         <div className="wrapper">
-          <Suspense fallback={<p>Loading...</p>}>
+          <Suspense fallback={<div className="loading">Loading...</div>}>
             <Await
               resolve={data.chatResponse}
-              errorElement={<p>Error loading chats!</p>}
+              errorElement={<div className="error">Error loading chats!</div>}
             >
-              {(chatResponse) => <Chat chats={chatResponse.data}/>}
+              {(chatResponse) => <Chat chats={chatResponse.data} />}
             </Await>
           </Suspense>
         </div>

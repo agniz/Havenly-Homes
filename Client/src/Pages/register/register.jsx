@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import "./register.scss";
 import { Link, useNavigate } from "react-router-dom";
 import apiRequest from "../../lib/apiRequest";
-import { FiUser, FiMail, FiLock, FiEye, FiEyeOff, FiCheckCircle, FiAlertCircle, FiX, FiArrowRight } from "react-icons/fi";
+import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaUserPlus, FaCheck, FaTimes } from "react-icons/fa";
 
-// Enhanced Toast Component with icons
+// Enhanced Toast Component
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => {
     const timer = setTimeout(onClose, 3000);
@@ -14,81 +14,74 @@ const Toast = ({ message, type, onClose }) => {
   return (
     <div className={`toast ${type}`}>
       <span className="toast-icon">
-        {type === "success" ? <FiCheckCircle /> : <FiAlertCircle />}
+        {type === 'success' ? '✓' : '✗'}
       </span>
       <span className="toast-message">{message}</span>
-      <button className="toast-close" onClick={onClose}>
-        <FiX />
-      </button>
+      <button className="toast-close" onClick={onClose}>×</button>
     </div>
   );
 };
 
 function Register() {
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: ""
-  });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState(0);
-  const [validations, setValidations] = useState({
-    usernameValid: true,
-    emailValid: true,
-    passwordValid: true
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState({
+    length: false,
+    hasUppercase: false,
+    hasLowercase: false,
+    hasNumber: false,
+    hasSpecial: false
   });
+
   const navigate = useNavigate();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  useEffect(() => {
+    // Check password strength
+    setPasswordStrength({
+      length: password.length >= 8,
+      hasUppercase: /[A-Z]/.test(password),
+      hasLowercase: /[a-z]/.test(password),
+      hasNumber: /[0-9]/.test(password),
+      hasSpecial: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)
+    });
+  }, [password]);
 
-    // Real-time validation feedback
-    if (name === "username") {
-      setValidations(prev => ({
-        ...prev,
-        usernameValid: value.length >= 3 && value.length <= 20
-      }));
-    } else if (name === "email") {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      setValidations(prev => ({
-        ...prev,
-        emailValid: emailRegex.test(value)
-      }));
-    } else if (name === "password") {
-      setValidations(prev => ({
-        ...prev,
-        passwordValid: value.length >= 8
-      }));
-      calculatePasswordStrength(value);
+  useEffect(() => {
+    // Validate email on change
+    if (email) {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      setEmailError(!emailRegex.test(email));
+    } else {
+      setEmailError(false);
     }
-  };
-
-  const calculatePasswordStrength = (password) => {
-    let strength = 0;
-    if (password.length >= 8) strength += 1;
-    if (/[A-Z]/.test(password)) strength += 1;
-    if (/[0-9]/.test(password)) strength += 1;
-    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-    setPasswordStrength(strength);
-  };
+  }, [email]);
 
   const validateForm = (username, email, password) => {
     if (username.length < 3 || username.length > 20) {
       throw new Error("Username must be between 3 and 20 characters");
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
+      const emailInput = document.getElementById("email");
+      if (emailInput) {
+        emailInput.classList.add("error-input");
+        setTimeout(() => emailInput.classList.remove("error-input"), 1000);
+      }
       throw new Error("Please enter a valid email address");
     }
+
     if (password.length < 8) {
       throw new Error("Password must be at least 8 characters long");
+    }
+
+    if (!(/[A-Z]/.test(password) && /[a-z]/.test(password) && /[0-9]/.test(password))) {
+      throw new Error("Password must contain uppercase, lowercase letters and numbers");
     }
   };
 
@@ -97,190 +90,246 @@ function Register() {
     setError("");
     setIsLoading(true);
 
-    const { username, email, password } = formData;
+    const formData = new FormData(e.target);
+
+    const username = formData.get("username");
+    const email = formData.get("email");
+    const password = formData.get("password");
 
     try {
       validateForm(username, email, password);
 
-      await apiRequest.post("/auth/register", { username, email, password });
+      const res = await apiRequest.post("/auth/register", {
+        username, 
+        email, 
+        password
+      });
       
       setToast({
         message: "Registration Successful! Redirecting to login...",
-        type: "success",
+        type: 'success'
       });
-      
-      setTimeout(() => navigate("/login"), 2000);
-    } catch (err) {
-      const errorMessage =
-        err.response?.data?.message || err.message || "Registration Failed";
-      setToast({
-        message: errorMessage,
-        type: "error",
-      });
-      setError(errorMessage);
-    } finally {
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+
+    } catch(err) {
       setIsLoading(false);
+      
+      // Check for API response errors
+      if (err.response?.data) {
+        const errorMessage = err.response.data.message || "Registration Failed";
+        
+        // Handle specific API errors
+        if (errorMessage.toLowerCase().includes("email") && 
+           (errorMessage.toLowerCase().includes("exist") || 
+            errorMessage.toLowerCase().includes("taken") || 
+            errorMessage.toLowerCase().includes("already"))) {
+          
+          const emailInput = document.getElementById("email");
+          if (emailInput) {
+            emailInput.classList.add("error-input");
+            setTimeout(() => emailInput.classList.remove("error-input"), 1000);
+          }
+          
+          setToast({
+            message: "This email is already registered. Please try logging in instead.",
+            type: 'error'
+          });
+        } else if (errorMessage.toLowerCase().includes("email") && 
+                  errorMessage.toLowerCase().includes("valid")) {
+          
+          const emailInput = document.getElementById("email");
+          if (emailInput) {
+            emailInput.classList.add("error-input");
+            setTimeout(() => emailInput.classList.remove("error-input"), 1000);
+          }
+          
+          setToast({
+            message: "Please enter a valid email address",
+            type: 'error'
+          });
+        } else {
+          setToast({
+            message: errorMessage,
+            type: 'error'
+          });
+        }
+        
+        setError(errorMessage);
+      } else {
+        // Handle client-side errors
+        const errorMessage = err.message || "Registration Failed";
+        setToast({
+          message: errorMessage,
+          type: 'error'
+        });
+        setError(errorMessage);
+      }
     }
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+  };
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
   };
 
   const handleToastClose = () => {
     setToast(null);
   };
 
-  const getPasswordStrengthText = () => {
-    if (passwordStrength === 0) return "";
-    if (passwordStrength === 1) return "Weak";
-    if (passwordStrength === 2) return "Fair";
-    if (passwordStrength === 3) return "Good";
-    return "Strong";
-  };
-
-  const getPasswordStrengthColor = () => {
-    if (passwordStrength === 0) return "#ddd";
-    if (passwordStrength === 1) return "#f44336";
-    if (passwordStrength === 2) return "#ff9800";
-    if (passwordStrength === 3) return "#4caf50";
-    return "#2e7d32";
+  const getPasswordStrengthClass = () => {
+    const { length, hasUppercase, hasLowercase, hasNumber, hasSpecial } = passwordStrength;
+    const criteria = [length, hasUppercase, hasLowercase, hasNumber, hasSpecial].filter(Boolean).length;
+    
+    if (criteria === 0) return "";
+    if (criteria < 3) return "weak";
+    if (criteria < 5) return "medium";
+    return "strong";
   };
 
   return (
     <div className="register">
       {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={handleToastClose}
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          onClose={handleToastClose} 
         />
       )}
+
       <div className="formContainer">
-        <form onSubmit={handleSubmit}>
-          <h1>Create an Account</h1>
-          <p className="subtitle">Join our community today</p>
-          
-          <div className="input-group">
-            <FiUser className="input-icon" />
-            <input
-              id="username"
-              name="username"
-              type="text"
-              placeholder="Choose a username"
-              required
-              minLength={3}
-              maxLength={20}
-              value={formData.username}
-              onChange={handleInputChange}
-              className={formData.username && !validations.usernameValid ? "error" : ""}
-            />
-            {formData.username && !validations.usernameValid && (
-              <div className="validation-message">Username must be between 3 and 20 characters</div>
-            )}
+        <div className="formWrapper">
+          <div className="formHeader">
+            <h1>Create an Account</h1>
+            <p>Join Havenly Homes and find your dream property</p>
           </div>
-          
-          <div className="input-group">
-            <FiMail className="input-icon" />
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="Enter your email address"
-              required
-              value={formData.email}
-              onChange={handleInputChange}
-              className={formData.email && !validations.emailValid ? "error" : ""}
-            />
-            {formData.email && !validations.emailValid && (
-              <div className="validation-message">Please enter a valid email address</div>
-            )}
-          </div>
-          
-          <div className="input-group">
-            <FiLock className="input-icon" />
-            <div className="password-field">
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Create a password"
-                required
-                minLength={8}
-                value={formData.password}
-                onChange={handleInputChange}
-                className={formData.password && !validations.passwordValid ? "error" : ""}
-              />
-              <button 
-                type="button" 
-                className="toggle-password"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? <FiEyeOff /> : <FiEye />}
-              </button>
+
+          <form onSubmit={handleSubmit}>
+            <div className="inputGroup">
+              <label htmlFor="username">Username</label>
+              <div className="inputWithIcon">
+                <FaUser className="inputIcon" />
+                <input 
+                  id="username"
+                  name="username" 
+                  type="text" 
+                  placeholder="Choose a username" 
+                  required
+                  minLength={3}
+                  maxLength={20}
+                />
+              </div>
+              <p className="inputHint">Username must be between 3-20 characters</p>
             </div>
-            
-            {formData.password && (
-              <>
-                <div className="password-strength-meter">
-                  <div className="strength-bar">
-                    {[...Array(4)].map((_, index) => (
-                      <div 
-                        key={index} 
-                        className={`bar-segment ${index < passwordStrength ? "active" : ""}`}
-                        style={{ backgroundColor: index < passwordStrength ? getPasswordStrengthColor() : "" }}
-                      />
-                    ))}
+
+            <div className="inputGroup">
+              <label htmlFor="email">Email</label>
+              <div className="inputWithIcon">
+                <FaEnvelope className="inputIcon" />
+                <input 
+                  id="email"
+                  name="email" 
+                  type="email" 
+                  placeholder="Enter your email" 
+                  required
+                  pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                  title="Please enter a valid email address"
+                  value={email}
+                  onChange={handleEmailChange}
+                  className={emailError && email ? "error-input" : ""}
+                />
+              </div>
+              {emailError && email ? (
+                <p className="inputHint error">Please enter a valid email address</p>
+              ) : (
+                <p className="inputHint">Please enter a valid email address (e.g., example@domain.com)</p>
+              )}
+            </div>
+
+            <div className="inputGroup">
+              <label htmlFor="password">Password</label>
+              <div className="inputWithIcon">
+                <FaLock className="inputIcon" />
+                <input 
+                  id="password"
+                  name="password" 
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="Create a password" 
+                  required
+                  minLength={8}
+                  value={password}
+                  onChange={handlePasswordChange}
+                  className={getPasswordStrengthClass()}
+                />
+                <button 
+                  type="button"
+                  className="togglePassword"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+              {password && (
+                <div className="passwordValidation">
+                  <div className={`validationItem ${passwordStrength.length ? 'valid' : 'invalid'}`}>
+                    {passwordStrength.length ? <FaCheck /> : <FaTimes />}
+                    <span>At least 8 characters</span>
                   </div>
-                  <span className="strength-text" style={{ color: getPasswordStrengthColor() }}>
-                    {getPasswordStrengthText()}
-                  </span>
+                  <div className={`validationItem ${passwordStrength.hasUppercase ? 'valid' : 'invalid'}`}>
+                    {passwordStrength.hasUppercase ? <FaCheck /> : <FaTimes />}
+                    <span>One uppercase letter</span>
+                  </div>
+                  <div className={`validationItem ${passwordStrength.hasLowercase ? 'valid' : 'invalid'}`}>
+                    {passwordStrength.hasLowercase ? <FaCheck /> : <FaTimes />}
+                    <span>One lowercase letter</span>
+                  </div>
+                  <div className={`validationItem ${passwordStrength.hasNumber ? 'valid' : 'invalid'}`}>
+                    {passwordStrength.hasNumber ? <FaCheck /> : <FaTimes />}
+                    <span>One number</span>
+                  </div>
+                  <div className={`validationItem ${passwordStrength.hasSpecial ? 'valid' : 'invalid'}`}>
+                    {passwordStrength.hasSpecial ? <FaCheck /> : <FaTimes />}
+                    <span>One special character</span>
+                  </div>
                 </div>
-                
-                <div className="password-requirements">
-                  <div className={`requirement ${formData.password.length >= 8 ? "met" : ""}`}>
-                    At least 8 characters
-                  </div>
-                  <div className={`requirement ${/[A-Z]/.test(formData.password) ? "met" : ""}`}>
-                    One uppercase letter
-                  </div>
-                  <div className={`requirement ${/[0-9]/.test(formData.password) ? "met" : ""}`}>
-                    One number
-                  </div>
-                  <div className={`requirement ${/[^A-Za-z0-9]/.test(formData.password) ? "met" : ""}`}>
-                    One special character
-                  </div>
-                </div>
-              </>
-            )}
-            
-            {formData.password && !validations.passwordValid && (
-              <div className="validation-message">Password must be at least 8 characters long</div>
-            )}
-          </div>
-          
-          <button
-            type="submit"
-            className="auth-button"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <span className="spinner"></span>
-            ) : (
-              <>
-                Create Account <FiArrowRight className="button-icon" />
-              </>
-            )}
-          </button>
-          
-          {error && <div className="error-message">{error}</div>}
-          
-          <div className="auth-links">
-            <span>Already have an account? </span>
-            <Link className="auth-link" to="/login">Sign in</Link>
-          </div>
-        </form>
+              )}
+            </div>
+
+            <button 
+              className={`submitButton ${isLoading ? 'loading' : ''}`}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span className="loadingSpinner"></span>
+              ) : (
+                <>
+                  <FaUserPlus className="buttonIcon" />
+                  <span>Create Account</span>
+                </>
+              )}
+            </button>
+
+            {error && <div className="errorMessage">{error}</div>}
+
+            <div className="loginLink">
+              Already have an account? <Link to="/login">Sign In</Link>
+            </div>
+          </form>
+        </div>
       </div>
-      
-      <div className="imgContainer">
-        <img src="/bg.png" alt="Decorative background" className="medium-image" />
+
+      <div className="imageContainer">
+        <div className="imageOverlay">
+          <h2>Find Your Perfect Home</h2>
+          <p>Join thousands of satisfied customers who found their dream property with us</p>
+        </div>
+        <img src="/bg.png" alt="Modern Home" />
       </div>
     </div>
   );

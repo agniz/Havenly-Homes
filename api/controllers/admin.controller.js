@@ -2,16 +2,55 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// Get all users
 export const getAllUsers = async (req, res) => {
   try {
     const users = await prisma.user.findMany();
-    console.log(users)
-    res.status(200).json(users);
+
+    // Fetch all subscriptions in one query
+    const subscriptions = await prisma.userSubscription.findMany();
+
+    const usersWithSubscription = users.map(user => {
+      const now = new Date();
+      let subscriptionStatus = 'INACTIVE';
+      let subscriptionLevel = 'FREE';
+      let subscriptionExpiryDate = null;
+
+      // Find the user's subscription
+      const userSubscription = subscriptions.find(sub => sub.userId === user.id);
+
+      if (userSubscription) {
+        if (userSubscription.stripeCancelAtPeriodEnd) {
+          subscriptionStatus = 'CANCELLED';
+        } else if (new Date(userSubscription.stripeCurrentPeriodEnd) < now) {
+          subscriptionStatus = 'EXPIRED';
+        } else {
+          subscriptionStatus = 'ACTIVE';
+        }
+
+        if (userSubscription.stripePriceId === process.env.STRIPE_MONTHLY_PRICE_ID) {
+          subscriptionLevel = 'MONTHLY';
+        } else if (userSubscription.stripePriceId === process.env.STRIPE_YEARLY_PRICE_ID) {
+          subscriptionLevel = 'YEARLY';
+        }
+
+        subscriptionExpiryDate = userSubscription.stripeCurrentPeriodEnd;
+      }
+
+      return {
+        ...user,
+        subscriptionStatus,
+        subscriptionLevel,
+        subscriptionExpiryDate,
+      };
+    });
+
+    res.status(200).json(usersWithSubscription);
   } catch (error) {
+    console.error("Error fetching users:", error);
     res.status(500).json({ error: "Failed to fetch users" });
   }
 };
+
 export const getUserCount = async (req, res) => {
   try {
     const count = await prisma.user.count();
@@ -33,6 +72,28 @@ export const deleteUser = async (req, res) => {
   }
 };
 
+// Update user subscription
+export const updateUserSubscription = async (req, res) => {
+  const { id } = req.params;
+  const { subscriptionLevel } = req.body;
+
+  try {
+    // Validate subscription level
+    if (!['FREE', 'MONTHLY', 'YEARLY'].includes(subscriptionLevel)) {
+      return res.status(400).json({ error: "Invalid subscription level" });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: parseInt(id) },
+      data: { subscriptionLevel }
+    });
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user subscription:", error);
+    res.status(500).json({ error: "Failed to update user subscription" });
+  }
+};
 
 // Get all listings
 export const getAllListings = async (req, res) => {

@@ -82,7 +82,10 @@ model User{
   chats Chat[] @relation(fields: [chatIDs], references: [id])
   chatIDs String[] @db.ObjectId
   isAdmin Boolean @default(false)
-
+  stripeCustomerId String?
+  subscriptionStatus String @default("free")
+  freePostsUsed Int @default(0)
+  lastPostTime DateTime?
 }
 
 model Chat {
@@ -103,7 +106,15 @@ model Message {
   chatId String @db.ObjectId
   createdAt DateTime @default(now())
 }
-
-
-
+model UserSubscription{
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @unique
+  stripeCustomerId String @unique
+  stripeSubscriptionId String @unique
+  stripePriceId String
+  stripeCurrentPeriodEnd DateTime
+  stripeCancelAtPeriodEnd Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 

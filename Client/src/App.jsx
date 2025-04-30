@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   createBrowserRouter,
   RouterProvider,
@@ -19,7 +19,11 @@ import ManageUsers from "./admin/ManageUsers";
 import ManageListings from "./admin/ManageListing";
 import { ToastContainer } from "react-toastify";
 import ViewListing from "./admin/ViewListing";
-import Footer from "./components/Footer/Footer";
+import Billing from "./Pages/billing/Billing";
+import Success from "./Pages/billing/Success";
+import UserSubscriptionLevelProvider from "./context/SubscriptionContext";
+import apiRequest from "./lib/apiRequest";
+import SubscriptionModal from "./components/SubscriptionModal";
 
 // ✅ Admin Route Wrapper Component
 function AdminRoute({ children }) {
@@ -33,6 +37,8 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: "/", element: <Homepage /> },
+      { path: "/billing", element: <Billing /> },
+      { path: "/billing/success", element: <Success /> },
       { path: "/list", element: <ListPage />, loader: listPageLoader },
       { path: "/:id", element: <SinglePage />, loader: singlePageLoader },
       { path: "/register", element: <Register /> },
@@ -70,11 +76,44 @@ const router = createBrowserRouter([
 
 
 function App() {
-  return <>
+
+  const [userSubscriptionLevel,setUserSubscriptionLevel] = useState(null)
+  const [loading,setLoading] = useState(false)
+  
+  useEffect(() => {
+    const fetchUserSubscriptionLevel = async () => {
+      try {
+        setLoading(true)
+        const userSubRes = await apiRequest.get("/users/sub-level");
+        if(!userSubRes){
+          throw new Error('Invalid Sub')
+        }
+        if(!userSubRes.data.success){
+          throw new Error('Error in Req')
+        }  
+        setUserSubscriptionLevel(userSubRes.data.data.type)
+    } catch (err) {
+      throw new Error('Error in Req')
+   }finally{
+        setLoading(false)
+      }
+    };
+
+    fetchUserSubscriptionLevel();
+  }, []);
+
+  if(loading){
+    return <div>Loading....</div>
+  }
+
+  return <div style={{position:'relative'}}>
+  <UserSubscriptionLevelProvider userSubscriptionLevel={userSubscriptionLevel}>
   <ToastContainer/>
   <RouterProvider router={router} />;
+  <SubscriptionModal currentPlan={userSubscriptionLevel}/>
+  </UserSubscriptionLevelProvider>
 
-  </>
+  </div>
 }
 
 

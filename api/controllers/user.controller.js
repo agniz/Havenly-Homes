@@ -155,3 +155,41 @@ export const getNotificationNumber = async (req, res) => {
     res.status(500).json({ message: "Failed to get profile posts!" });
   }
 };
+
+export const getUserSubscriptionLevel = async(req,res)=>{
+  const tokenUserId = req.userId;
+  try {
+    const subscription = await prisma.userSubscription.findUnique({
+      where:{
+        userId:tokenUserId
+      }
+    })
+    console.log(subscription)
+    if(!subscription){
+      return res.status(200).json({success:true,data:{type:"FREE"}})
+    }
+    if(subscription.stripePriceId === process.env.STRIPE_MONTHLY_PRICE_ID){
+      return res.status(200).json({success:true,data:{type:"MONTHLY"}})
+    }
+    if(subscription.stripePriceId === process.env.STRIPE_YEARLY_PRICE_ID){
+      return res.status(200).json({success:true,data:{type:"YEARLY"}})
+      
+    }
+  } catch (error) {
+    return res.status(500).json({success:false,data:null})
+  }
+}
+
+export const getUserPostCount = async(req,res)=>{
+  const tokenUserId = req.userId;
+  try {
+    const count = await prisma.post.count({
+      where:{
+        userId:tokenUserId
+      }
+    })
+    return res.status(200).json({success:true,data:{totalCount:count}})
+  } catch (error) {
+    return res.status(500).json({success:false,data:null})
+  }
+}

@@ -3,20 +3,27 @@
 .profilePage {
   display: flex;
   height: 100%;
-  background: #f8f9fa; // Light background for the entire page
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 2rem;
+  gap: 2rem;
 
   @include md {
     flex-direction: column;
-    overflow: scroll;
+    padding: 1rem;
   }
 
   .details {
     flex: 3;
-    overflow-y: scroll;
-    padding: 2rem;
+    overflow-y: auto;
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); // Subtle shadow for depth
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    }
 
     @include md {
       flex: none;
@@ -24,82 +31,242 @@
     }
 
     .wrapper {
-      padding-right: 2rem;
+      padding: 2.5rem;
       display: flex;
       flex-direction: column;
-      gap: 2rem;
+      gap: 2.5rem;
 
-      .title {
+      .profileHeader {
         display: flex;
-        align-items: center;
         justify-content: space-between;
+        align-items: center;
+        padding-bottom: 2.5rem;
+        border-bottom: 1px solid #f0f0f0;
 
-        h1 {
-          font-weight: 600; // Bold title
-          font-size: 2rem;
-          color: #2c3e50; // Dark blue for headings
+        .profileInfo {
+          display: flex;
+          align-items: center;
+          gap: 2rem;
+
+          .avatarContainer {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 5px solid white;
+
+            &:hover {
+              transform: scale(1.05);
+              box-shadow: 0 12px 25px rgba(0, 0, 0, 0.18);
+            }
+
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+
+            .avatarOverlay {
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background: rgba(0, 0, 0, 0.6);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              opacity: 0;
+              transition: all 0.3s ease;
+
+              &.active {
+                opacity: 1;
+              }
+
+              .editIcon {
+                color: white;
+                font-size: 2rem;
+                cursor: pointer;
+                transition: transform 0.3s ease;
+
+                &:hover {
+                  transform: scale(1.2);
+                }
+              }
+            }
+          }
+
+          .userDetails {
+            h2 {
+              font-size: 2.2rem;
+              color: #2c3e50;
+              margin-bottom: 0.5rem;
+              font-weight: 700;
+              letter-spacing: 0.5px;
+              text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            }
+
+            p {
+              color: #6c757d;
+              font-size: 1.1rem;
+              letter-spacing: 0.3px;
+            }
+          }
         }
 
-        button {
-          padding: 12px 24px;
-          background-color: #4caf50; // Green for primary actions
-          color: white;
-          cursor: pointer;
-          border: none;
-          border-radius: 8px;
-          font-size: 1rem;
-          transition: background-color 0.3s ease;
+        .buttons-container {
+          display: flex;
+          gap: 1.2rem;
+          align-items: center;
+          margin-left: 1rem;
+          
+          @include md {
+            margin-top: 1rem;
+            margin-left: 0;
+          }
 
-          &:hover {
-            background-color: #45a049; // Darker green on hover
+          .billingButton, .logoutButton {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.8rem 1.4rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            min-width: 130px;
+            text-decoration: none;
+            
+            @include md {
+              min-width: 110px;
+              padding: 0.7rem 1rem;
+              font-size: 0.85rem;
+            }
+            
+            svg {
+              font-size: 1.1rem;
+              transition: transform 0.2s ease;
+              
+              @include md {
+                font-size: 1rem;
+              }
+            }
+            
+            &:hover {
+              transform: translateY(-2px);
+              
+              svg {
+                transform: scale(1.1);
+              }
+            }
+            
+            &:active {
+              transform: translateY(0);
+            }
+          }
+
+          .billingButton {
+            background-color: #4361ee;
+            color: white;
+            box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);
+            
+            &:hover {
+              background-color: #3a56d4;
+              box-shadow: 0 6px 10px rgba(67, 97, 238, 0.3);
+            }
+          }
+
+          .logoutButton {
+            background-color: #f8f9fa;
+            color: #e63946;
+            border: 1px solid #e6394620;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            
+            &:hover {
+              background-color: #f1f3f5;
+              color: #d90429;
+              box-shadow: 0 6px 10px rgba(0, 0, 0, 0.08);
+            }
           }
         }
       }
 
-      .info {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
+      .contentSection {
+        position: relative;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         padding: 1.5rem;
-        background: #f8f9fa; // Light background for info section
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); // Subtle shadow
+        transition: all 0.3s ease;
+        
+        &:hover {
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+          transform: translateY(-2px);
+        }
 
-        span {
+        .sectionHeader {
           display: flex;
+          justify-content: space-between;
           align-items: center;
-          gap: 1rem;
-          font-size: 1.1rem;
-          color: #4a5568; // Gray for text
+          margin-bottom: 1.5rem;
 
-          img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #e2e8f0; // Border for the avatar
+          .sectionTitle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+
+            .sectionIcon {
+              color: #4361ee;
+              font-size: 1.8rem;
+            }
+
+            h1 {
+              font-size: 1.8rem;
+              color: #2c3e50;
+              font-weight: 600;
+            }
           }
 
-          b {
-            color: #2c3e50; // Dark blue for emphasis
-            font-weight: 600;
+          .createButton {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+            }
           }
         }
 
-        button {
-          width: 120px;
-          padding: 0.75rem 1rem;
-          background-color: #ff6f61; // Coral for logout button
-          border: none;
-          color: white;
-          cursor: pointer;
-          border-radius: 8px;
-          font-size: 1rem;
-          transition: background-color 0.3s ease;
+        .loading {
+          text-align: center;
+          padding: 2rem;
+          color: #6c757d;
+          font-size: 1.1rem;
+        }
 
-          &:hover {
-            background-color: #ff3b2f; // Darker coral on hover
-          }
+        .error {
+          text-align: center;
+          padding: 2rem;
+          color: #dc3545;
+          font-size: 1.1rem;
         }
       }
     }
@@ -107,25 +274,37 @@
 
   .chatContainer {
     flex: 2;
-    background-color: #ffffff; // White background for chat container
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); // Subtle shadow
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
 
     @include md {
       flex: none;
-      height: max-content;
+      height: 500px;
     }
 
     .wrapper {
-      padding: 0 1rem;
       height: 100%;
+      padding: 1.5rem;
 
-      h1 {
-        font-size: 1.5rem;
-        color: #2c3e50; // Dark blue for headings
-        font-weight: 600;
-        margin-bottom: 1.5rem;
+      .loading {
+        text-align: center;
+        padding: 2rem;
+        color: #6c757d;
+        font-size: 1.1rem;
+      }
+
+      .error {
+        text-align: center;
+        padding: 2rem;
+        color: #dc3545;
+        font-size: 1.1rem;
       }
     }
   }

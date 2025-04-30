@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
+import "./login.scss";
 import { Link, useNavigate } from "react-router-dom";
 import apiRequest from "../../lib/apiRequest";
+import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
-import { FiUser, FiLock, FiArrowRight, FiMail } from "react-icons/fi";
-import "./login.scss";
+import { FaUser, FaLock, FaEye, FaEyeSlash, FaSignInAlt } from "react-icons/fa";
 
+// Enhanced Toast Component
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => {
     const timer = setTimeout(onClose, 3000);
@@ -16,151 +18,151 @@ const Toast = ({ message, type, onClose }) => {
       <span className="toast-icon">
         {type === 'success' ? '✓' : '✗'}
       </span>
-      {message}
-      <button onClick={onClose} className="toast-close">
-        ×
-      </button>
+      <span className="toast-message">{message}</span>
+      <button className="toast-close" onClick={onClose}>×</button>
     </div>
   );
 };
 
 function Login() {
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [toast, setToast] = useState(null);
-  const [formData, setFormData] = useState({
-    username: "",
-    password: ""
-  });
+    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [toast, setToast] = useState(null);
+    const [showPassword, setShowPassword] = useState(false);
 
-  const { updateUser } = useContext(AuthContext);
-  const navigate = useNavigate();
+    const { updateUser } = useContext(AuthContext);
+    const navigate = useNavigate();
+  
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setIsLoading(true);
+      setError("");
+      const formData = new FormData(e.target);
+  
+      const username = formData.get("username");
+      const password = formData.get("password");
+  
+      try {
+        const res = await apiRequest.post("/auth/login", {
+          username,
+          password,
+        });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+        setToast({
+          message: "Login Successful! Redirecting...",
+          type: 'success'
+        });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
+        updateUser(res.data);
+        
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+             
+      } catch(err) {
+        setToast({
+          message: err.response?.data?.message || "Login Failed",
+          type: 'error'
+        });
+        
+        setError(err.response?.data?.message || "Login Failed");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    try {
-      const res = await apiRequest.post("/auth/login", formData);
-      
-      setToast({
-        message: "Login Successful! Redirecting...",
-        type: 'success'
-      });
+    const handleToastClose = () => {
+      setToast(null);
+    };
 
-      updateUser(res.data);
-      
-      setTimeout(() => navigate("/"), 2000);
-    } catch(err) {
-      const errorMessage = err.response?.data?.message || "Login Failed";
-      setToast({ message: errorMessage, type: 'error' });
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    return (
+      <div className="login">
+        {toast && (
+          <Toast 
+            message={toast.message} 
+            type={toast.type} 
+            onClose={handleToastClose} 
+          />
+        )}
 
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
-    const email = prompt("Please enter your email address:");
-    if (!email) return;
+        <div className="formContainer">
+          <div className="formWrapper">
+            <div className="formHeader">
+              <h1>Welcome Back</h1>
+              <p>Sign in to continue to your account</p>
+            </div>
 
-    try {
-      await apiRequest.post("/auth/forgot-password", { email });
-      setToast({
-        message: "Password reset link sent to your email!",
-        type: 'success'
-      });
-    } catch (err) {
-      setToast({
-        message: "Error sending reset link. Please try again.",
-        type: 'error'
-      });
-    }
-  };
+            <form onSubmit={handleSubmit}>
+              <div className="inputGroup">
+                <label htmlFor="username">Username</label>
+                <div className="inputWithIcon">
+                  <FaUser className="inputIcon" />
+                  <input 
+                    id="username"
+                    name="username" 
+                    required 
+                    minLength={3} 
+                    maxLength={20} 
+                    type="text" 
+                    placeholder="Enter your username" 
+                  />
+                </div>
+              </div>
 
-  const handleToastClose = () => setToast(null);
+              <div className="inputGroup">
+                <label htmlFor="password">Password</label>
+                <div className="inputWithIcon">
+                  <FaLock className="inputIcon" />
+                  <input 
+                    id="password"
+                    name="password" 
+                    type={showPassword ? "text" : "password"} 
+                    placeholder="Enter your password" 
+                    required
+                  />
+                  <button 
+                    type="button"
+                    className="togglePassword"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+              </div>
 
-  return (
-    <div className="login">
-      {toast && <Toast message={toast.message} type={toast.type} onClose={handleToastClose} />}
+              <button 
+                className={`submitButton ${isLoading ? 'loading' : ''}`}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="loadingSpinner"></span>
+                ) : (
+                  <>
+                    <FaSignInAlt className="buttonIcon" />
+                    <span>Sign In</span>
+                  </>
+                )}
+              </button>
 
-      <div className="formContainer">
-        <form onSubmit={handleSubmit}>
-          <h1>Welcome Back</h1>
-          <div className="input-group">
-            <FiUser className="input-icon" />
-            <input
-              name="username"
-              type="text"
-              placeholder="Username or Email"
-              value={formData.username}
-              onChange={handleChange}
-              required
-            />
+              {error && <div className="errorMessage">{error}</div>}
+
+              <div className="registerLink">
+                Don't have an account? <Link to="/register">Sign Up</Link>
+              </div>
+            </form>
           </div>
-          <div className="input-group">
-            <FiLock className="input-icon" />
-            <input
-              name="password"
-              type="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          
-          
+        </div>
 
-          <button 
-            type="submit" 
-            className={`auth-button ${isLoading ? 'loading' : ''}`}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <span className="spinner"></span>
-            ) : (
-              <>
-                Login <FiArrowRight className="button-icon" />
-              </>
-            )}
-          </button>
-          
-          {error && <div className="error-message">{error}</div>}
-          
-          <div className="auth-links">
-            
-            <Link to="/register" className="auth-link">
-              Sign Up
-            </Link>
-            <span>Don't have an account? </span>
+        <div className="imageContainer">
+          <div className="imageOverlay">
+            <h2>Find Your Perfect Home</h2>
+            <p>Join thousands of satisfied customers who found their dream property with us</p>
           </div>
-          <div className="form-options">
-            <Link 
-              to="#" 
-              onClick={handleForgotPassword}
-              className="forgot-password"
-            >
-              Forgot Password?
-            </Link>
-          </div>
-        </form>
+          <img src="/bg.png" alt="Modern Home" />
+        </div>
       </div>
-      <div className="imgContainer">
-        <img src="/bg.png" alt="Decorative background" />
-      </div>
-    </div>
-  );
+    );
 }
 
 export default Login;
