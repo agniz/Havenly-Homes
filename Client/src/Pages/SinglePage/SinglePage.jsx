@@ -27,14 +27,7 @@ import {
   FaSchool,
   FaBusAlt,
   FaUtensils,
-  FaWifi,
-  FaDog,
-  FaBriefcase,
-  FaShoppingCart,
-  FaHospital,
-  FaMapMarked,
-  FaComment,
-  FaHeart
+
 } from "react-icons/fa";
 
 function SinglePage() {
@@ -43,7 +36,7 @@ function SinglePage() {
   const { currentUser } = useContext(AuthContext);
   const { socket } = useContext(SocketContext);
   const navigate = useNavigate();
-  
+
   // Add state for message popup
   const [showMessagePopup, setShowMessagePopup] = useState(false);
   const [message, setMessage] = useState("");
@@ -51,7 +44,7 @@ function SinglePage() {
   const [messages, setMessages] = useState([]);
   const messageEndRef = useRef();
   const inputRef = useRef();
-
+  const isOwner = currentUser?.id === post?.userId;
   // Scroll to bottom when messages change
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -347,13 +340,13 @@ function SinglePage() {
               <FaCommentDots />
               <span>Send a Message</span>
             </button>}
-            <button
+          {!isOwner &&  <button
               onClick={handleSave}
               className={saved ? "savedBtn" : "saveBtn"}
             >
               {saved ? <FaBookmark /> : <FaRegBookmark />}
               <span>{saved ? "Place Saved" : "Save the Place"}</span>
-            </button>
+            </button>}
           </div>
         </div>
       </div>

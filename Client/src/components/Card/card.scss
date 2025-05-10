@@ -92,26 +92,35 @@
         align-items: center;
 
         .tag {
-          padding: 8px 16px;
+          padding: 6px 12px;
           border-radius: 20px;
-          font-size: 14px;
+          font-size: 0.8rem;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.5px;
-          color: white;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
-          @include sm {
-            padding: 6px 12px;
-            font-size: 12px;
+          &.rent {
+            background-color: rgba(79, 70, 229, 0.1);
+            color: #4f46e5;
+            border: 1px solid rgba(79, 70, 229, 0.2);
           }
 
           &.sale {
-            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            background-color: rgba(22, 101, 52, 0.1);
+            color: #166534;
+            border: 1px solid rgba(22, 101, 52, 0.2);
           }
 
-          &.rent {
-            background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%);
+          &.approved {
+            background-color: rgba(56, 161, 105, 0.1);
+            color: #38a169;
+            border: 1px solid rgba(56, 161, 105, 0.2);
+          }
+
+          &.pending {
+            background-color: rgba(214, 158, 46, 0.1);
+            color: #d69e2e;
+            border: 1px solid rgba(214, 158, 46, 0.2);
           }
         }
 

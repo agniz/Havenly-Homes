@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import "./card.scss";
 import { AuthContext } from "../../context/AuthContext";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaBed, FaBath, FaMapMarkerAlt, FaBookmark, FaEye, FaTrash } from "react-icons/fa";
@@ -10,7 +10,6 @@ import apiRequest from "../../lib/apiRequest";
 function Card({ item, onDelete }) {
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
-
   const handleCardClick = (e) => {
     // Don't navigate if clicked on a button or within a button
     if (e.target.closest('button')) {
@@ -68,17 +67,18 @@ function Card({ item, onDelete }) {
     }
   };
 
-  const handleSaveClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleSave = async(e) => {
+      try {
+       const res =  await apiRequest.post("/users/save", { postId: item.id });
+ 
+        toast.info(res.data.message);
+      } catch (err) {
+        console.log(err);
+        setSaved((prev) => !prev);
+      }
     
-    if (!currentUser) {
-      toast.warning("Please log in to save properties.");
-      return;
-    }
     
-    // Add your save functionality here
-    toast.info("Property saved to favorites");
+ 
   };
 
   if (!item) return null;
@@ -101,6 +101,11 @@ function Card({ item, onDelete }) {
               <span className={`tag ${isRental ? 'rent' : 'sale'}`}>
                 {isRental ? "For Rent" : "For Sale"}
               </span>
+              {isOwner && (
+                <span className={`tag ${item.isApproved ? 'approved' : 'pending'}`}>
+                  {item.isApproved ? "Approved" : "Pending"}
+                </span>
+              )}
             </div>
             <div className="quick-view">
               <FaEye className="quick-view-icon" />
@@ -140,15 +145,15 @@ function Card({ item, onDelete }) {
               </div>
             </div>
             <div className="actions">
-              <button 
+             {!isOwner && <button  style={{zIndex:200}} 
                 className="save-button" 
-                onClick={handleSaveClick} 
+                onClick={handleSave} 
                 title="Save property"
               >
                 <FaBookmark className="save-icon" />
-              </button>
+              </button>}
               {isOwner && (
-                <button 
+                <button style={{zIndex:200}} 
                   className="delete-button" 
                   onClick={handleDelete}
                   title="Delete property"

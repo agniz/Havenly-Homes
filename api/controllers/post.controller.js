@@ -120,15 +120,5 @@ export const deletePost = async (req, res) => {
     console.log(err);
     res.status(500).json({ message: "Failed to delete post" });
   }
-  router.post('/add-property', async (req, res) => {
-    const { userId, propertyData } = req.body;
-    const user = await prisma.user.findUnique({ where: { id: userId }, include: { properties: true } });
 
-    if (user.subscriptionStatus !== 'active' && user.properties.length >= 3) {
-        return res.status(403).json({ error: 'Free limit reached. Subscribe to add more properties.' });
-    }
-
-    const newProperty = await prisma.property.create({ data: { ...propertyData, userId } });
-    res.json(newProperty);
-});
 };
