@@ -1,30 +1,57 @@
 @import "../../responsive.scss";
 
 nav {
-  height: 100px;
+  height: 80px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0 50px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  @include md {
+    padding: 0 20px;
+  }
 
   a {
-    transition: all 0.4s ease;
-    border: 1px solid white;
-    background-color: whitesmoke;
-    border-radius: 10px;
-
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    color: #2d3748;
+    font-weight: 500;
+    position: relative;
 
     @include sm {
       display: none;
     }
 
-    
     &:hover {
-      scale: 1.05;
-      transform: scale(1.1);
-      background-color: #fece51;
+      color: #2193b0;
+      transform: translateY(-2px);
+
+      &::after {
+        transform: scaleX(1);
+        opacity: 1;
+      }
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+      opacity: 0;
     }
   }
-  
 
   .left {
     flex: 3;
@@ -38,12 +65,36 @@ nav {
       display: flex;
       align-items: center;
       gap: 10px;
+      text-decoration: none;
+      color: #2d3748;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+      }
 
       img {
-        width: 28px;
+        width: 35px;
+        height: auto;
+        transition: transform 0.3s ease;
+
+        &:hover {
+          transform: scale(1.1) rotate(5deg);
+        }
       }
 
       span {
+        font-size: 1.5rem;
+        background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+        transition: all 0.3s ease;
+
+        &:hover {
+          filter: brightness(1.1);
+        }
+
         @include md {
           display: none;
         }
@@ -54,68 +105,137 @@ nav {
       }
     }
   }
+
   .right {
     flex: 2;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    background-color: #fcf5f3;
-    height: 100%;
-
-    @include md {
-      background-color: transparent;
-    }
+    gap: 20px;
 
     a {
-      padding: 12px 24px;
-      margin: 20px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(33, 147, 176, 0.2);
+      }
     }
 
-    .user{
+    .user {
       display: flex;
       align-items: center;
-      font-weight: bold;
+      gap: 15px;
+      position: relative;
 
-      img{
+      img {
         width: 40px;
         height: 40px;
         border-radius: 50%;
         object-fit: cover;
-        margin-right: 20px;
+        border: 2px solid #2193b0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+
+        &:hover {
+          transform: scale(1.1);
+          box-shadow: 0 4px 12px rgba(33, 147, 176, 0.2);
+          border-color: #6dd5ed;
+        }
       }
 
-      span{
-        @include sm{
+      span {
+        font-weight: 500;
+        color: #2d3748;
+        transition: all 0.3s ease;
+
+        &:hover {
+          color: #2193b0;
+        }
+
+        @include sm {
           display: none;
         }
       }
 
-      .profile{
-        padding: 12px 24px;
-        background-color: #fece51;
+      .profile {
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+        color: white;
+        border-radius: 8px;
         cursor: pointer;
         border: none;
         position: relative;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: visible;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(33, 147, 176, 0.3);
+        }
         
-        .notification{
+        .notification {
           position: absolute;
           top: -8px;
           right: -8px;
-          background-color: red;
+          background-color: #e53e3e;
           color: white;
           border-radius: 50%;
-          width: 26px;
-          height: 26px;
+          min-width: 22px;
+          height: 22px;
           display: flex;
           align-items: center;
           justify-content: center;
-        }
+          font-size: 0.75rem;
+          font-weight: 600;
+          border: 2px solid white;
+          padding: 0 6px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          z-index: 10;
+          transition: all 0.3s ease;
 
+          &:hover {
+            transform: scale(1.1);
+            background-color: #c53030;
+          }
+        }
       }
     }
 
     .register {
-      background-color: #fece51;
+      background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+      color: white;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: 0.5s;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(33, 147, 176, 0.3);
+
+        &::before {
+          left: 100%;
+        }
+      }
     }
 
     .menuIcon {
@@ -123,9 +243,14 @@ nav {
       z-index: 999;
 
       img {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
         cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+          transform: scale(1.1) rotate(90deg);
+        }
       }
 
       @include sm {
@@ -134,27 +259,67 @@ nav {
     }
 
     .menu {
-      position: absolute;
+      position: fixed;
       top: 0;
-      right: -50%;
-      background-color: black;
-      color: white;
+      right: -100%;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
       height: 100vh;
-      width: 50%;
-      transition: all 1s ease;
+      width: 70%;
+      max-width: 300px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      gap: 20px;
+      box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
 
       &.active {
         right: 0;
       }
 
+      a {
+        display: block;
+        padding: 15px 30px;
+        font-size: 1.1rem;
+        color: #2d3748;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(33, 147, 176, 0.1),
+            transparent
+          );
+          transition: 0.5s;
+        }
+
+        &:hover {
+          background: rgba(33, 147, 176, 0.1);
+          color: #2193b0;
+          transform: translateX(5px);
+
+          &::before {
+            left: 100%;
+          }
+        }
+      }
+
       @include sm {
         a {
-          display: initial;
+          display: block;
         }
       }
     }
